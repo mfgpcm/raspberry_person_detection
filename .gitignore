@@ -1,0 +1,5 @@
+venv/
+recordings/
+model/
+detect_person_config.json
+__pycache__/

@@ -1,0 +1,21 @@
+{
+    "model": "model/ssd-mobilenet-v1-tflite-metadata-v2.tflite",
+    "recs": "./recordings",    
+    "cameraUrl": "rtsp://user:pwd@192.168.1.111:554/cam/realmonitor?channel=1&subtype=01&authbasic=BASE64_from_https://www.ispyconnect.com/camera/",
+    "frameWidth": 640,
+    "frameHeight": 420,
+    "numThreads": 2,
+    "enableEdgeTPU": false,
+    "min_person_frames": 1,
+    "min_no_person_frames": 20,
+    "interactive": false,
+    "min_conf": 0.4,
+    "debug": "WARNING",
+    "verbose": false,
+    "send_mail": false,
+    "sender_email": "sender@gmail.com",
+    "receiver_email": "receiver@gmail.com",
+    "password": "App_Password_from_gmail",
+    "smtp_url": "smtp.gmail.com",
+    "smtp_port": 465
+}

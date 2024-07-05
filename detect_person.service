@@ -1,0 +1,21 @@
+#Adapt user and group (check group via 'id [username]')
+#Place in /etc/systemd/system/detect_person.service
+#Enable by sudo systemctl daemon-reload; sudo systemctl enable detect_person.service
+#Run by sudo service detect_person start
+#logs sudo journalctl -u detect_person
+[Unit]
+Description=Person detection with TFlite
+After=network.target
+
+[Service]
+Type=simple
+User=raspi
+Group=raspi
+ExecStart=/usr/bin/python3 /home/pmunk/person_detection/detect_person_dnn.py
+WorkingDirectory=/home/pmunk/person_detection
+Restart=on-failure
+# Optionally, specify any environment variables your script needs:
+# Environment=VAR1=value1 VAR2=value2
+
+[Install]
+WantedBy=multi-user.target

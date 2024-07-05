@@ -1,0 +1,3 @@
+numpy
+#opencv-python==4.10.0.82 #on rapsberry via apt
+tflite-support==0.4.3 #0.4.4 requires libstdc++ newer than available on raspberry 
