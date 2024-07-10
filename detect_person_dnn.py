@@ -180,7 +180,10 @@ def run(model: str, recs: str, rtsp_url: str, width: int, height: int, num_threa
                         if not os.path.isdir(video_dir):
                             os.mkdir(video_dir)
                         video_path = os.path.join(video_dir, 'detection_'+time.strftime('%Y-%m-%d_%H-%M-%S')+".webm")
-                        out = cv2.VideoWriter(video_path, fourcc, fps, (width, height))
+                        try:
+                            out = cv2.VideoWriter(video_path, fourcc, fps, (width, height))
+                        except:
+                            logging.exception()
                         logging.debug("Started recording %s", video_path)
                     except:
                         logging.exception()
@@ -201,7 +204,7 @@ def run(model: str, recs: str, rtsp_url: str, width: int, height: int, num_threa
                     out.release()
                     logging.debug("Video saved here %s", video_path)
                 except:
-                        logging.exception()
+                    logging.exception()
                 if send_mail:
                     send_email(video_path, sender_email, receiver_email, smtp_url, smtp_port, password)
                 frames_with_person = 0
@@ -349,7 +352,7 @@ def main():
             # Overwrite any possible given arguments
             for key, value in config_settings.items():
                 setattr(args, key, value)    
-
+    
     logging.basicConfig(level=args.loglevel,
                         format='%(asctime)s:%(levelname)s:%(message)s')
     
