@@ -9,7 +9,7 @@
     "min_person_frames": 1,
     "min_no_person_frames": 20,
     "interactive": false,
-    "min_conf": 0.4,
+    "min_conf": 0.5,
     "debug": "WARNING",
     "verbose": false,
     "send_mail": false,
@@ -17,5 +17,6 @@
     "receiver_email": "receiver@gmail.com",
     "password": "App_Password_from_gmail",
     "smtp_url": "smtp.gmail.com",
-    "smtp_port": 465
+    "smtp_port": 465,
+    "period": 500
 }

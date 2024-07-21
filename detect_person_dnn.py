@@ -96,7 +96,7 @@ def open_cam(rtsp_url: str, width: int = 640, height: int = 480) -> cv2.VideoCap
 
 
 def run(model: str, recs: str, rtsp_url: str, width: int, height: int, num_threads: int,
-        enable_edgetpu: bool, min_person_frames: int, min_no_person_frames: int,
+        enable_edgetpu: bool, period: int, min_person_frames: int, min_no_person_frames: int,
         interactive: bool, min_conf: float, send_mail: bool, sender_email: str, 
         receiver_email: str, smtp_url: str, smtp_port: int, password: str) -> None:
 
@@ -145,7 +145,7 @@ def run(model: str, recs: str, rtsp_url: str, width: int, height: int, num_threa
         else:
             sleep_if_failed = 1
             counter += 1
-
+                        
             image = cv2.resize(image, (width, height))
 
             # Convert the image from BGR to RGB as required by the TFLite model.
@@ -157,13 +157,6 @@ def run(model: str, recs: str, rtsp_url: str, width: int, height: int, num_threa
             # Run object detection estimation using the model.
             detection_result = detector.detect(input_tensor)
 
-            # Calculate the FPS
-            if time.time() - start_time >= calc_fps_ever:
-                fps = counter / (time.time() - start_time)
-                start_time = time.time()
-                counter = 0
-                logging.debug("current fps: {:.1f} (opencv = {:.1f})".format(fps, cap.get(cv2.CAP_PROP_FPS)))
-            
             person_detected = False
             for detection in detection_result.detections:
                 for category in detection.categories:
@@ -213,11 +206,26 @@ def run(model: str, recs: str, rtsp_url: str, width: int, height: int, num_threa
             
             if interactive:
                 # Stop the program if the ESC key is pressed.
-                if cv2.waitKey(1) == 27:
+                if cv2.waitKey(1) & 0xFF == 27:
                     break
                 # Draw keypoints and edges on input image
                 image = visualize(image, detection_result)
                 cv2.imshow('object_detector', image)
+
+            # Calculate remaining time to the next 500 ms interval
+            elapsed_time = (time.time() - start_time) * 1000
+            remaining_time = max(1, period - int(elapsed_time) % period)
+            # Wait for the remainder of the 500 ms period
+            time.sleep(remaining_time/1000)
+
+            # Calculate the FPS
+            if time.time() - start_time >= calc_fps_ever:
+                fps = counter / (time.time() - start_time)
+                start_time = time.time()
+                counter = 0
+                logging.debug("current fps: {:.1f} (opencv = {:.1f})".format(fps, cap.get(cv2.CAP_PROP_FPS)))
+
+
 
     cap.release()
     if interactive:
@@ -343,6 +351,12 @@ def main():
         required=False,
         type=int,
         default=465)
+    parser.add_argument(
+        '--period',
+        help='Timing period of reading the images in s',
+        required=False,
+        type=int,
+        default=500)    
     args = parser.parse_args()    
 
     # Read config from file if specified
@@ -356,11 +370,14 @@ def main():
     logging.basicConfig(level=args.loglevel,
                         format='%(asctime)s:%(levelname)s:%(message)s')
     
+    if args.loglevel == logging.DEBUG:
+        logging.debug(args)
+
     if not os.path.isdir(args.recs):
         logging.error("Recordings directory does not exist")
     else: 
         run(args.model, args.recs, args.cameraUrl, args.frameWidth, args.frameHeight, int(args.numThreads),
-            bool(args.enableEdgeTPU), int(args.min_person_frames), int(args.min_no_person_frames),
+            bool(args.enableEdgeTPU), int(args.period), int(args.min_person_frames), int(args.min_no_person_frames),
             bool(args.interactive), float(args.min_conf), bool(args.send_mail),
             args.sender_email, args.receiver_email, args.smtp_url, int(args.smtp_port), args.password)
 
